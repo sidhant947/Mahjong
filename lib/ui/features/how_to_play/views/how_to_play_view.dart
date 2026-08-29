@@ -1,99 +1,121 @@
 import 'package:flutter/material.dart';
-import 'package:mahjong/ui/core/theme/app_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mahjong/ui/core/services/haptic_service.dart';
 import 'package:mahjong/ui/core/widgets/tangible_button.dart';
+import 'package:mahjong/ui/providers.dart';
 
-class HowToPlayView extends StatelessWidget {
+class HowToPlayView extends ConsumerWidget {
   const HowToPlayView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Custom App Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white24,
-                          width: 1.0,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        size: 18,
-                        color: AppColors.headingDark,
-                      ),
-                    ),
-                  ),
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        'HOW TO PLAY',
-                        style: TextStyle(
-                          
-                          fontSize: 26,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.headingDark,
-                          letterSpacing: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 44),
-                ],
-              ),
-            ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final skin = ref.watch(currentSkinProvider);
 
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
+    return Scaffold(
+      backgroundColor: skin.scaffoldBg,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: const Alignment(0, -0.2),
+            radius: 1.2,
+            colors: skin.bgGradient,
+            stops: const [0.0, 0.65, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Custom App Bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
                   children: [
-                    _step(
-                      context,
-                      1,
-                      'Find Matching Pairs',
-                      'Select two unlocked tiles that have identical faces (or matching Flowers / Seasons).',
-                      Icons.extension_rounded,
+                    GestureDetector(
+                      onTap: () {
+                        HapticService.lightImpact();
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: skin.surfaceColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white24,
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 18,
+                          color: skin.headingColor,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                    _step(
-                      context,
-                      2,
-                      'Unlocked Tiles Rule',
-                      'A tile is free and selectable ONLY if it has no tiles resting on top of it AND has at least its left or right side open.',
-                      Icons.lock_open_rounded,
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          'HOW TO PLAY',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w900,
+                            color: skin.headingColor,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                    _step(
-                      context,
-                      3,
-                      'Clear the Board',
-                      'Remove all tiles pair by pair until the board is completely clear to win the level!',
-                      Icons.cleaning_services_rounded,
-                    ),
-                    const SizedBox(height: 32),
-                    TangibleButton(
-                      text: 'GOT IT!',
-                      onPressed: () => Navigator.pop(context),
-                    ),
+                    const SizedBox(width: 44),
                   ],
                 ),
               ),
-            ),
-          ],
+
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      _step(
+                        context,
+                        1,
+                        'Find Matching Pairs',
+                        'Select two unlocked tiles that have identical faces (or matching Flowers / Seasons).',
+                        Icons.extension_rounded,
+                        skin,
+                      ),
+                      const SizedBox(height: 20),
+                      _step(
+                        context,
+                        2,
+                        'Unlocked Tiles Rule',
+                        'A tile is free and selectable ONLY if it has no tiles resting on top of it AND has at least its left or right side open.',
+                        Icons.lock_open_rounded,
+                        skin,
+                      ),
+                      const SizedBox(height: 20),
+                      _step(
+                        context,
+                        3,
+                        'Clear the Board',
+                        'Remove all tiles pair by pair until the board is completely clear to win the level!',
+                        Icons.cleaning_services_rounded,
+                        skin,
+                      ),
+                      const SizedBox(height: 32),
+                      TangibleButton(
+                        text: 'GOT IT!',
+                        primaryColor: skin.primaryColor,
+                        secondaryColor: skin.surfaceColor,
+                        textColor: skin.headingColor,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -105,11 +127,12 @@ class HowToPlayView extends StatelessWidget {
     String title,
     String description,
     IconData icon,
+    dynamic skin,
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: skin.surfaceColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white24, width: 1.0),
       ),
@@ -118,11 +141,11 @@ class HowToPlayView extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
+            decoration: BoxDecoration(
+              color: skin.primaryColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: AppColors.headingDark, size: 24),
+            child: Icon(icon, color: skin.headingColor, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -131,19 +154,18 @@ class HowToPlayView extends StatelessWidget {
               children: [
                 Text(
                   '$number. $title',
-                  style: const TextStyle(
-                    
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.headingDark,
+                    color: skin.headingColor,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.subtext,
+                    color: skin.subtextColor,
                     height: 1.4,
                   ),
                 ),

@@ -23,5 +23,34 @@ class HiveService {
     await _progressBox.put(_progressKey, progress);
   }
 
+  Future<String?> getSelectedSkinId() async {
+    final settingsBox = await Hive.openBox('app_settings');
+    return settingsBox.get('selected_skin_id') as String?;
+  }
+
+  Future<void> saveSelectedSkinId(String skinId) async {
+    final settingsBox = await Hive.openBox('app_settings');
+    await settingsBox.put('selected_skin_id', skinId);
+  }
+
+  Future<bool> getHintHelperEnabled() async {
+    final settingsBox = await Hive.openBox('app_settings');
+    return settingsBox.get('hint_helper_enabled', defaultValue: true) as bool;
+  }
+
+  Future<void> saveHintHelperEnabled(bool enabled) async {
+    final settingsBox = await Hive.openBox('app_settings');
+    await settingsBox.put('hint_helper_enabled', enabled);
+  }
+
+  Future<bool> getHapticsEnabled() async {
+    final settingsBox = await Hive.openBox('app_settings');
+    return settingsBox.get('haptics_enabled', defaultValue: true) as bool;
+  }
+
+  Future<void> saveHapticsEnabled(bool enabled) async {
+    final settingsBox = await Hive.openBox('app_settings');
+    await settingsBox.put('haptics_enabled', enabled);
+  }
 }
 

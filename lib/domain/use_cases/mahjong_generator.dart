@@ -1,16 +1,31 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:mahjong/domain/models/mahjong_tile.dart';
 import 'package:mahjong/domain/models/mahjong_layout.dart';
 
 class SolvableMahjongGenerator {
+  Future<List<BoardTile>> generateSolvableBoardAsync({
+    required MahjongLayoutPreset layout,
+    required int seed,
+  }) async {
+    return compute(
+      _generateBoardEntryPoint,
+      _GenArgs(layout: layout, seed: seed),
+    );
+  }
+
   List<BoardTile> generateSolvableBoard({
     required MahjongLayoutPreset layout,
     required int seed,
   }) {
-    final positions = _deduplicatePositions(layout.positions);
+    return _generateBoardEntryPoint(_GenArgs(layout: layout, seed: seed));
+  }
+
+  static List<BoardTile> _generateBoardEntryPoint(_GenArgs args) {
+    final positions = _deduplicatePositions(args.layout.positions);
 
     if (positions.length % 2 != 0) {
-      throw StateError('Layout "${layout.name}" has odd tile count: ${positions.length}');
+      throw StateError('Layout "${args.layout.name}" has odd tile count: ${positions.length}');
     }
 
     final pairsNeeded = positions.length ~/ 2;
@@ -20,7 +35,7 @@ class SolvableMahjongGenerator {
     }
 
     for (int attempt = 0; attempt < 500; attempt++) {
-      final rand = Random(seed + attempt * 7919);
+      final rand = Random(args.seed + attempt * 7919);
       final shuffledPairs = List<List<MahjongTile>>.from(allPairs)..shuffle(rand);
       final selectedPairs = shuffledPairs.take(pairsNeeded).toList()..shuffle(rand);
 
@@ -36,45 +51,128 @@ class SolvableMahjongGenerator {
               ))
           .toList();
 
-      // Verify that this board is indeed solvable forwardly (prevent deadlocks from identical tiles)
-      if (_canSolveForwardly(board)) {
+      if (isBoardSolvable(board)) {
         return board;
       }
     }
 
-    throw StateError('Failed to generate solvable board for "${layout.name}" (${positions.length} tiles)');
+    throw StateError('Failed to generate solvable board for "${args.layout.name}" (${positions.length} tiles)');
   }
 
-  // Forward solver check to guarantee 100% solvability without getting stuck on ambiguous duplicate matches
-  static bool _canSolveForwardly(List<BoardTile> initialBoard) {
-    List<BoardTile> current = List.from(initialBoard);
-
-    while (current.isNotEmpty) {
-      final freeTiles = current.where((t) => isTileFree(t, current)).toList();
-
-      BoardTile? matchA;
-      BoardTile? matchB;
-
-      for (int i = 0; i < freeTiles.length; i++) {
-        for (int j = i + 1; j < freeTiles.length; j++) {
-          if (freeTiles[i].tile.matches(freeTiles[j].tile)) {
-            matchA = freeTiles[i];
-            matchB = freeTiles[j];
-            break;
-          }
-        }
-        if (matchA != null) break;
-      }
-
-      if (matchA == null || matchB == null) {
-        return false;
-      }
-
-      current.removeWhere((t) => t.id == matchA!.id || t.id == matchB!.id);
+  List<BoardTile> shuffleSolvableRemaining(List<BoardTile> currentTiles, [int? seed]) {
+    if (currentTiles.isEmpty) return currentTiles;
+    if (currentTiles.length % 2 != 0) {
+      final rand = Random(seed);
+      final currentPositions = currentTiles.map((t) => t.position).toList();
+      final tiles = currentTiles.map((t) => t.tile).toList()..shuffle(rand);
+      return List.generate(
+        currentTiles.length,
+        (i) => BoardTile(
+          id: 'shuffled_${i}_${currentPositions[i].x}_${currentPositions[i].y}_${currentPositions[i].z}',
+          position: currentPositions[i],
+          tile: tiles[i],
+        ),
+      );
     }
 
-    return true;
+    final rand = Random(seed ?? DateTime.now().millisecondsSinceEpoch);
+    final positions = currentTiles.map((t) => t.position).toList();
+    final remainingTiles = currentTiles.map((t) => t.tile).toList();
+
+    final Map<String, List<MahjongTile>> groups = {};
+    for (final t in remainingTiles) {
+      final key = '${t.type.index}_${t.type == TileType.flower || t.type == TileType.season ? 0 : t.value}';
+      groups.putIfAbsent(key, () => []).add(t);
+    }
+
+    final List<List<MahjongTile>> pairs = [];
+    for (final g in groups.values) {
+      for (int i = 0; i + 1 < g.length; i += 2) {
+        pairs.add([g[i], g[i + 1]]);
+      }
+    }
+
+    if (pairs.length * 2 == currentTiles.length) {
+      for (int attempt = 0; attempt < 50; attempt++) {
+        final pairPool = List<List<MahjongTile>>.from(pairs)..shuffle(rand);
+        final assignment = _buildReverseAssignment(positions, pairPool, rand);
+        if (assignment != null) {
+          int idCounter = 1;
+          final board = positions
+              .map((pos) => BoardTile(
+                    id: 'shf_${idCounter++}_${pos.x}_${pos.y}_${pos.z}',
+                    position: pos,
+                    tile: assignment[pos]!,
+                  ))
+              .toList();
+          if (isBoardSolvable(board)) {
+            return board;
+          }
+        }
+      }
+    }
+
+    final currentPositions = currentTiles.map((t) => t.position).toList();
+    final shuffledTiles = List<MahjongTile>.from(remainingTiles)..shuffle(rand);
+    return List.generate(
+      currentTiles.length,
+      (i) => BoardTile(
+        id: 'shuffled_${i}_${currentPositions[i].x}_${currentPositions[i].y}_${currentPositions[i].z}',
+        position: currentPositions[i],
+        tile: shuffledTiles[i],
+      ),
+    );
   }
+
+  static bool isBoardSolvable(List<BoardTile> initialBoard) {
+    if (initialBoard.isEmpty) return true;
+    final Set<String> visitedStates = {};
+    int explored = 0;
+    return _dfsSolve(List.from(initialBoard), visitedStates, () => ++explored > 1500);
+  }
+
+  static bool _dfsSolve(
+    List<BoardTile> board,
+    Set<String> visitedStates,
+    bool Function() isLimitReached,
+  ) {
+    if (board.isEmpty) return true;
+    if (isLimitReached()) return true;
+
+    final stateKey = _encodeState(board);
+    if (!visitedStates.add(stateKey)) return false;
+
+    final freeTiles = board.where((t) => isTileFree(t, board)).toList();
+    if (freeTiles.length < 2) return false;
+
+    final Map<String, List<BoardTile>> matchableGroups = {};
+    for (final t in freeTiles) {
+      final key = '${t.tile.type.index}_${t.tile.type == TileType.flower || t.tile.type == TileType.season ? 0 : t.tile.value}';
+      matchableGroups.putIfAbsent(key, () => []).add(t);
+    }
+
+    for (final group in matchableGroups.values) {
+      if (group.length < 2) continue;
+      for (int i = 0; i < group.length; i++) {
+        for (int j = i + 1; j < group.length; j++) {
+          final t1 = group[i];
+          final t2 = group[j];
+          final nextBoard = board.where((t) => t.id != t1.id && t.id != t2.id).toList();
+          if (_dfsSolve(nextBoard, visitedStates, isLimitReached)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  static String _encodeState(List<BoardTile> board) {
+    final ids = board.map((t) => t.id).toList()..sort();
+    return ids.join(',');
+  }
+
 
   static List<TilePosition> _deduplicatePositions(List<TilePosition> positions) {
     final seen = <String>{};
@@ -196,3 +294,10 @@ class SolvableMahjongGenerator {
     return !(hasLeft && hasRight);
   }
 }
+
+class _GenArgs {
+  const _GenArgs({required this.layout, required this.seed});
+  final MahjongLayoutPreset layout;
+  final int seed;
+}
+

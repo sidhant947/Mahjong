@@ -257,26 +257,68 @@ class MahjongLayouts {
     );
   }
 
-  // Procedural layout for higher levels — uses seeded symmetric pattern
-  static MahjongLayoutPreset generateProceduralLayout(int levelNumber) {
+  // Butterfly layout — 88 tiles, elegant wing structures
+  static MahjongLayoutPreset get butterfly {
     final pos = <TilePosition>[];
-    final depth = (3 + (levelNumber % 4)).clamp(3, 6);
-    final rng = _Lcg(levelNumber * 1000003 + 7);
-
-    for (int z = 0; z < depth; z++) {
-      final maxCols = 8 - z;
-      final maxRows = 5 - z ~/ 2;
-      for (int row = 0; row < maxRows; row++) {
-        for (int col = 0; col < maxCols; col++) {
-          // Use LCG to create interesting sparse patterns
-          if (rng.next() % 7 != 0) {
-            final x = (16 - maxCols + col * 2);
-            final y = (8 - maxRows + row * 2);
-            if (x >= 0 && y >= 0) pos.add(TilePosition(x: x, y: y, z: z));
-          }
+    for (int y = 4; y <= 12; y += 2) {
+      pos.add(TilePosition(x: 14, y: y, z: 0));
+      pos.add(TilePosition(x: 16, y: y, z: 0));
+      pos.add(TilePosition(x: 14, y: y, z: 1));
+      pos.add(TilePosition(x: 16, y: y, z: 1));
+    }
+    for (int dx = 2; dx <= 10; dx += 2) {
+      for (int dy = -4; dy <= 4; dy += 2) {
+        if ((dx == 10 && dy.abs() == 4) || (dx == 2 && dy == 0)) continue;
+        pos.add(TilePosition(x: 15 - dx, y: 8 + dy, z: 0));
+        pos.add(TilePosition(x: 15 + dx, y: 8 + dy, z: 0));
+        if (dx <= 6 && dy.abs() <= 2) {
+          pos.add(TilePosition(x: 15 - dx, y: 8 + dy, z: 1));
+          pos.add(TilePosition(x: 15 + dx, y: 8 + dy, z: 1));
         }
       }
     }
+    return MahjongLayoutPreset(
+      name: 'Butterfly',
+      description: 'Symmetric wing formation with elevated spine.',
+      width: 32,
+      height: 18,
+      depth: 2,
+      positions: _validateLayerSupport(_trimToEven(_dedupe(pos), 88)),
+    );
+  }
+
+  // Dragon / Snake layout — 108 tiles, winding spine and claws
+  static MahjongLayoutPreset get dragon {
+    final pos = <TilePosition>[];
+    for (int x = 4; x <= 26; x += 2) {
+      final yOffset = ((x ~/ 4) % 2 == 0) ? 6 : 10;
+      pos.add(TilePosition(x: x, y: yOffset, z: 0));
+      pos.add(TilePosition(x: x, y: yOffset + 2, z: 0));
+      pos.add(TilePosition(x: x, y: yOffset, z: 1));
+      pos.add(TilePosition(x: x, y: yOffset + 2, z: 1));
+    }
+    for (final x in [6, 12, 18, 24]) {
+      pos.add(TilePosition(x: x, y: 2, z: 0));
+      pos.add(TilePosition(x: x, y: 14, z: 0));
+    }
+    for (int x = 8; x <= 22; x += 2) {
+      pos.add(TilePosition(x: x, y: 8, z: 2));
+    }
+    return MahjongLayoutPreset(
+      name: 'Celestial Dragon',
+      description: 'Coiling serpentine dragon with multi-level head and tail.',
+      width: 32,
+      height: 18,
+      depth: 3,
+      positions: _validateLayerSupport(_trimToEven(_dedupe(pos), 108)),
+    );
+  }
+
+  // Procedural layout for higher levels — guarantees horizontal and vertical 4-way symmetry and layer support
+  static MahjongLayoutPreset generateProceduralLayout(int levelNumber) {
+    final depth = (2 + (levelNumber % 3)).clamp(2, 4);
+    final rng = _Lcg(levelNumber * 1000003 + 7);
+    final pos = <TilePosition>[];
 
     final targetCount = levelNumber <= 5
         ? 34
@@ -285,16 +327,44 @@ class MahjongLayouts {
             : levelNumber <= 30
                 ? 88
                 : levelNumber <= 50
-                    ? 120
-                    : 144;
+                    ? 108
+                    : levelNumber <= 100
+                        ? 120
+                        : 144;
+
+    const cx = 15;
+    const cy = 8;
+
+    for (int z = 0; z < depth; z++) {
+      final maxDx = 6 - z;
+      final maxDy = 3 - (z ~/ 2);
+
+      for (int dy = 0; dy <= maxDy; dy++) {
+        for (int dx = 0; dx <= maxDx; dx++) {
+          if (z == 0 || rng.next() % 5 != 0) {
+            final xLeft = cx - (dx * 2);
+            final xRight = cx + (dx * 2);
+            final yTop = cy - (dy * 2);
+            final yBottom = cy + (dy * 2);
+
+            pos.add(TilePosition(x: xLeft, y: yTop, z: z));
+            pos.add(TilePosition(x: xRight, y: yTop, z: z));
+            pos.add(TilePosition(x: xLeft, y: yBottom, z: z));
+            pos.add(TilePosition(x: xRight, y: yBottom, z: z));
+          }
+        }
+      }
+    }
+
+    final validPositions = _validateLayerSupport(_trimToEven(_dedupe(pos), targetCount));
 
     return MahjongLayoutPreset(
       name: 'Realm #$levelNumber',
-      description: 'Procedural Layout #$levelNumber',
-      width: 32,
+      description: 'Harmonic procedural realm #$levelNumber',
+      width: 34,
       height: 18,
       depth: depth,
-      positions: _trimToEven(_dedupe(pos), targetCount),
+      positions: validPositions,
     );
   }
 
@@ -302,20 +372,61 @@ class MahjongLayouts {
     if (levelNumber <= 5) return miniPyramid;
     if (levelNumber <= 15) return twinPeaks;
     if (levelNumber <= 30) return arena;
-    if (levelNumber <= 50) return greatWall;
-    if (levelNumber <= 75) return turtle;
-    if (levelNumber <= 100) return fortress;
-    if (levelNumber <= 150) return pagoda;
+    if (levelNumber <= 50) return butterfly;
+    if (levelNumber <= 75) return greatWall;
+    if (levelNumber <= 100) return dragon;
+    if (levelNumber <= 125) return turtle;
+    if (levelNumber <= 150) return fortress;
+    if (levelNumber <= 175) return pagoda;
     return generateProceduralLayout(levelNumber);
   }
 
-  // Remove duplicate (x,y,z) positions
+  // Ensures higher layer tiles have at least 1 supporting tile beneath them
+  static List<TilePosition> _validateLayerSupport(List<TilePosition> positions) {
+    final result = <TilePosition>[];
+    final layerMap = <int, Set<String>>{};
+
+    for (final p in positions) {
+      layerMap.putIfAbsent(p.z, () => <String>{}).add('${p.x},${p.y}');
+    }
+
+    for (int z = 0; z <= 10; z++) {
+      if (!layerMap.containsKey(z)) continue;
+      final coords = layerMap[z]!;
+      for (final coord in coords) {
+        final parts = coord.split(',');
+        final x = int.parse(parts[0]);
+        final y = int.parse(parts[1]);
+
+        if (z == 0) {
+          result.add(TilePosition(x: x, y: y, z: 0));
+        } else {
+          final belowLayer = layerMap[z - 1] ?? {};
+          bool supported = false;
+          for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+              if (belowLayer.contains('${x + dx * 2},${y + dy * 2}')) {
+                supported = true;
+                break;
+              }
+            }
+            if (supported) break;
+          }
+          if (supported) {
+            result.add(TilePosition(x: x, y: y, z: z));
+          }
+        }
+      }
+    }
+
+    return _trimToEven(result, result.length);
+  }
+
   static List<TilePosition> _dedupe(List<TilePosition> positions) {
     final seen = <String>{};
     return positions.where((p) => seen.add('${p.x},${p.y},${p.z}')).toList();
   }
 
-  // Trim to at most [max] positions, ensuring count is even
   static List<TilePosition> _trimToEven(List<TilePosition> positions, int max) {
     final count = positions.length < max ? positions.length : max;
     final evenCount = count % 2 == 0 ? count : count - 1;
@@ -323,7 +434,6 @@ class MahjongLayouts {
   }
 }
 
-// Simple LCG for seeded procedural layout generation (no dart:math dependency)
 class _Lcg {
   _Lcg(int seed) : _state = seed & 0x7FFFFFFF;
   int _state;
