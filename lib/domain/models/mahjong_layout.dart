@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:mahjong/domain/models/mahjong_tile.dart';
 
@@ -314,58 +315,225 @@ class MahjongLayouts {
     );
   }
 
-  // Procedural layout for higher levels — guarantees horizontal and vertical 4-way symmetry and layer support
+  // 6 Procedural Layout Archetypes with Sawtooth / Breather Pacing Curve
   static MahjongLayoutPreset generateProceduralLayout(int levelNumber) {
-    final depth = (2 + (levelNumber % 3)).clamp(2, 4);
+    final archetypeIndex = ((levelNumber - 1) ~/ 5) % 6;
+    final paceInCycle = (levelNumber - 1) % 5; // 0..4
+
+    // Sawtooth Pacing:
+    // pace 0: Medium Warmup (88 tiles, 3 layers)
+    // pace 1: Heavy Build (112 tiles, 4 layers)
+    // pace 2: Peak / Mini-Boss (144 tiles, 5-6 layers)
+    // pace 3: Breather / Quick Relax (64-72 tiles, 2-3 layers)
+    // pace 4: Milestone Challenge (136-144 tiles, 5 layers)
+    int targetCount;
+    int maxLayers;
+
+    switch (paceInCycle) {
+      case 0:
+        targetCount = 88;
+        maxLayers = 3;
+        break;
+      case 1:
+        targetCount = 112;
+        maxLayers = 4;
+        break;
+      case 2:
+        targetCount = 144;
+        maxLayers = 5;
+        break;
+      case 3:
+        targetCount = 68;
+        maxLayers = 3;
+        break;
+      case 4:
+      default:
+        targetCount = 144;
+        maxLayers = 5;
+        break;
+    }
+
     final rng = _Lcg(levelNumber * 1000003 + 7);
     final pos = <TilePosition>[];
+    String archetypeName;
 
-    final targetCount = levelNumber <= 5
-        ? 34
-        : levelNumber <= 15
-            ? 72
-            : levelNumber <= 30
-                ? 88
-                : levelNumber <= 50
-                    ? 108
-                    : levelNumber <= 100
-                        ? 120
-                        : 144;
-
-    const cx = 15;
-    const cy = 8;
-
-    for (int z = 0; z < depth; z++) {
-      final maxDx = 6 - z;
-      final maxDy = 3 - (z ~/ 2);
-
-      for (int dy = 0; dy <= maxDy; dy++) {
-        for (int dx = 0; dx <= maxDx; dx++) {
-          if (z == 0 || rng.next() % 5 != 0) {
-            final xLeft = cx - (dx * 2);
-            final xRight = cx + (dx * 2);
-            final yTop = cy - (dy * 2);
-            final yBottom = cy + (dy * 2);
-
-            pos.add(TilePosition(x: xLeft, y: yTop, z: z));
-            pos.add(TilePosition(x: xRight, y: yTop, z: z));
-            pos.add(TilePosition(x: xLeft, y: yBottom, z: z));
-            pos.add(TilePosition(x: xRight, y: yBottom, z: z));
-          }
-        }
-      }
+    switch (archetypeIndex) {
+      case 0:
+        archetypeName = 'The Spire';
+        _generateSpireArchetype(pos, rng, maxLayers);
+        break;
+      case 1:
+        archetypeName = 'The Labyrinth';
+        _generateLabyrinthArchetype(pos, rng, maxLayers);
+        break;
+      case 2:
+        archetypeName = 'The Archipelago';
+        _generateArchipelagoArchetype(pos, rng, maxLayers);
+        break;
+      case 3:
+        archetypeName = 'The Fortress Gate';
+        _generateFortressGateArchetype(pos, rng, maxLayers);
+        break;
+      case 4:
+        archetypeName = 'The Constellation';
+        _generateConstellationArchetype(pos, rng, maxLayers);
+        break;
+      case 5:
+      default:
+        archetypeName = 'The Matrix Grid';
+        _generateMatrixArchetype(pos, rng, maxLayers);
+        break;
     }
 
     final validPositions = _validateLayerSupport(_trimToEven(_dedupe(pos), targetCount));
 
     return MahjongLayoutPreset(
-      name: 'Realm #$levelNumber',
-      description: 'Harmonic procedural realm #$levelNumber',
+      name: '$archetypeName #$levelNumber',
+      description: 'Procedural $archetypeName (Level $levelNumber)',
       width: 34,
-      height: 18,
-      depth: depth,
+      height: 20,
+      depth: maxLayers,
       positions: validPositions,
     );
+  }
+
+  // 1. The Spire: Steeper pyramid with tight vertical heights
+  static void _generateSpireArchetype(List<TilePosition> pos, _Lcg rng, int maxLayers) {
+    const cx = 15;
+    const cy = 8;
+    for (int z = 0; z < maxLayers; z++) {
+      final maxDx = 6 - z;
+      final maxDy = 3 - (z ~/ 2);
+      for (int dy = 0; dy <= maxDy; dy++) {
+        for (int dx = 0; dx <= maxDx; dx++) {
+          if (z == 0 || rng.next() % 6 != 0) {
+            _add4WaySymmetric(pos, cx, cy, dx * 2, dy * 2, z);
+          }
+        }
+      }
+    }
+  }
+
+  // 2. The Labyrinth: Horizontal corridor walls with blocked exits
+  static void _generateLabyrinthArchetype(List<TilePosition> pos, _Lcg rng, int maxLayers) {
+    for (int z = 0; z < maxLayers; z++) {
+      final yRows = [2 + z * 2, 8, 14 - z * 2];
+      final xStart = 2 + z * 2;
+      final xEnd = 28 - z * 2;
+      for (final y in yRows) {
+        for (int x = xStart; x <= xEnd; x += 2) {
+          if (z == 0 || rng.next() % 5 != 0) {
+            pos.add(TilePosition(x: x, y: y, z: z));
+          }
+        }
+      }
+      for (int y = 4; y <= 12; y += 2) {
+        if (z == 0 || rng.next() % 4 != 0) {
+          pos.add(TilePosition(x: 4 + z * 2, y: y, z: z));
+          pos.add(TilePosition(x: 26 - z * 2, y: y, z: z));
+        }
+      }
+    }
+  }
+
+  // 3. The Archipelago: Multi-island cluster nodes
+  static void _generateArchipelagoArchetype(List<TilePosition> pos, _Lcg rng, int maxLayers) {
+    final islandCenters = [
+      const Point(8, 4),
+      const Point(22, 4),
+      const Point(8, 12),
+      const Point(22, 12),
+      const Point(15, 8),
+    ];
+
+    for (final center in islandCenters) {
+      for (int z = 0; z < maxLayers; z++) {
+        final radius = (2 - z).clamp(0, 2);
+        for (int dy = -radius; dy <= radius; dy++) {
+          for (int dx = -radius; dx <= radius; dx++) {
+            if (z == 0 || rng.next() % 4 != 0) {
+              final px = center.x + dx * 2;
+              final py = center.y + dy * 2;
+              if (px >= 0 && px <= 30 && py >= 0 && py <= 16) {
+                pos.add(TilePosition(x: px, y: py, z: z));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 4. The Fortress Gate: Heavy defensive perimeter with central crown
+  static void _generateFortressGateArchetype(List<TilePosition> pos, _Lcg rng, int maxLayers) {
+    for (int z = 0; z < maxLayers; z++) {
+      final inset = z * 2;
+      final xMin = 2 + inset;
+      final xMax = 28 - inset;
+      final yMin = 2 + (inset ~/ 2) * 2;
+      final yMax = 14 - (inset ~/ 2) * 2;
+
+      for (int y = yMin; y <= yMax; y += 2) {
+        for (int x = xMin; x <= xMax; x += 2) {
+          if (x == xMin || x == xMax || y == yMin || y == yMax) {
+            if (z == 0 || rng.next() % 5 != 0) {
+              pos.add(TilePosition(x: x, y: y, z: z));
+            }
+          }
+        }
+      }
+    }
+    // Elevated inner crown
+    for (int z = 1; z < maxLayers; z++) {
+      for (int y = 6; y <= 10; y += 2) {
+        for (int x = 12; x <= 18; x += 2) {
+          pos.add(TilePosition(x: x, y: y, z: z));
+        }
+      }
+    }
+  }
+
+  // 5. The Constellation: Diagonal star-burst formations
+  static void _generateConstellationArchetype(List<TilePosition> pos, _Lcg rng, int maxLayers) {
+    const cx = 15;
+    const cy = 8;
+    for (int z = 0; z < maxLayers; z++) {
+      final arms = 5 - z;
+      for (int i = 0; i <= arms; i++) {
+        _add4WaySymmetric(pos, cx, cy, i * 2, i * 2, z);
+        _add4WaySymmetric(pos, cx, cy, i * 2, 0, z);
+        _add4WaySymmetric(pos, cx, cy, 0, i * 2, z);
+      }
+    }
+  }
+
+  // 6. The Matrix: High density interleaved grid
+  static void _generateMatrixArchetype(List<TilePosition> pos, _Lcg rng, int maxLayers) {
+    const cx = 15;
+    const cy = 8;
+    for (int z = 0; z < maxLayers; z++) {
+      final spanX = (5 - z).clamp(1, 5);
+      final spanY = (3 - z ~/ 2).clamp(1, 3);
+      for (int dy = 0; dy <= spanY; dy++) {
+        for (int dx = 0; dx <= spanX; dx++) {
+          if ((dx + dy) % 2 == (z % 2) || z == 0) {
+            _add4WaySymmetric(pos, cx, cy, dx * 2, dy * 2, z);
+          }
+        }
+      }
+    }
+  }
+
+  static void _add4WaySymmetric(List<TilePosition> pos, int cx, int cy, int dx, int dy, int z) {
+    final xLeft = cx - dx;
+    final xRight = cx + dx;
+    final yTop = cy - dy;
+    final yBottom = cy + dy;
+
+    pos.add(TilePosition(x: xLeft, y: yTop, z: z));
+    pos.add(TilePosition(x: xRight, y: yTop, z: z));
+    pos.add(TilePosition(x: xLeft, y: yBottom, z: z));
+    pos.add(TilePosition(x: xRight, y: yBottom, z: z));
   }
 
   static MahjongLayoutPreset getPresetForLevel(int levelNumber) {

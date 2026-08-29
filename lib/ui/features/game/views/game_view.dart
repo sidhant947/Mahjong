@@ -138,12 +138,6 @@ class _GameViewState extends ConsumerState<GameView> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.stars_rounded,
-                  size: 64,
-                  color: Color(0xFFFFFFFF),
-                ),
-                const SizedBox(height: 12),
                 Text(
                   'BOARD CLEARED!',
                   style: TextStyle(
