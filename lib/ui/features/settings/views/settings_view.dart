@@ -204,6 +204,71 @@ class SettingsView extends ConsumerWidget {
                 ),
               ),
 
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: currentSkin.surfaceColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: currentSkin.accentColor.withValues(alpha: 0.3),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: currentSkin.primaryColor.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.grid_view_rounded,
+                          color: currentSkin.headingColor,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Traditional Tiles',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: currentSkin.headingColor,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Chinese symbols & bamboos instead of emoji',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: currentSkin.subtextColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: ref.watch(traditionalTilesEnabledProvider),
+                        activeThumbColor: currentSkin.primaryColor,
+                        activeTrackColor: currentSkin.primaryColor.withValues(alpha: 0.4),
+                        inactiveThumbColor: currentSkin.subtextColor,
+                        inactiveTrackColor: Colors.white10,
+                        onChanged: (bool value) {
+                          settingsRepo.setTraditionalTilesEnabled(value);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 8),
 
               Padding(

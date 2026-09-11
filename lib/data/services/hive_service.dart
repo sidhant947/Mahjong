@@ -52,5 +52,15 @@ class HiveService {
     final settingsBox = await Hive.openBox('app_settings');
     await settingsBox.put('haptics_enabled', enabled);
   }
+
+  Future<bool> getTraditionalTilesEnabled() async {
+    final settingsBox = await Hive.openBox('app_settings');
+    return settingsBox.get('traditional_tiles_enabled', defaultValue: false) as bool;
+  }
+
+  Future<void> saveTraditionalTilesEnabled(bool enabled) async {
+    final settingsBox = await Hive.openBox('app_settings');
+    await settingsBox.put('traditional_tiles_enabled', enabled);
+  }
 }
 

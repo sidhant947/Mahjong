@@ -32,6 +32,11 @@ final hapticsEnabledProvider = Provider<bool>((ref) {
   return settingsRepo.hapticsEnabled;
 });
 
+final traditionalTilesEnabledProvider = Provider<bool>((ref) {
+  final settingsRepo = ref.watch(settingsRepositoryProvider);
+  return settingsRepo.traditionalTilesEnabled;
+});
+
 final progressRepositoryProvider = ChangeNotifierProvider<ProgressRepository>((ref) {
   final hiveService = ref.watch(hiveServiceProvider);
   return ProgressRepository(hiveService: hiveService);
