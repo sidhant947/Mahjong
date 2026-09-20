@@ -13,6 +13,9 @@ analyzer:
   exclude:
     - layout-reference/**
     - game-reference/**
+    - build/**
+    - android/**
+    - linux/**
 
 linter:
   # The lint rules applied to this project can be customized in the

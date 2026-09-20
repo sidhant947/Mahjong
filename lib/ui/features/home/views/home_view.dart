@@ -233,6 +233,7 @@ class _HomeViewState extends ConsumerState<HomeView>
                                         state.progress!.currentLevel <= 1
                                     ? 'Start Game'
                                     : 'Play',
+                                isSecondary: true,
                                 height: 44,
                                 primaryColor: skin.primaryColor,
                                 secondaryColor: skin.surfaceColor,
@@ -385,6 +386,7 @@ class _HomeViewState extends ConsumerState<HomeView>
                             state.progress!.currentLevel <= 1
                         ? 'Start Game'
                         : 'Play',
+                    isSecondary: true,
                     primaryColor: skin.primaryColor,
                     secondaryColor: skin.surfaceColor,
                     textColor: skin.headingColor,

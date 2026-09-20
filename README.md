@@ -1,5 +1,7 @@
 # Mahjong Solitaire — Free, Private & Infinite Levels
 
+[![AI-DECLARATION: pair](https://img.shields.io/badge/䷼%20AI--DECLARATION-pair-ffedd5?labelColor=ffedd5)](AI-DECLARATION.md)
+
 An open-source, privacy-first Mahjong Solitaire game built with Flutter. Play classic tile-matching puzzles without interruptions, tracking, or ads.
 
 ## Key Features

@@ -4,36 +4,41 @@ class AppSkin {
   const AppSkin({
     required this.id,
     required this.name,
-    required this.description,
-    required this.previewColor,
     required this.bgGradient,
     required this.primaryColor,
     required this.accentColor,
     required this.surfaceColor,
     required this.headingColor,
     required this.subtextColor,
-    required this.scaffoldBg,
     required this.glowColor,
+    required this.tileBaseGradient,
+    required this.tileBaseHighlight,
+    required this.tileBezelColors,
+    required this.tileInnerBezelColor,
+    required this.tileFaceGradient,
   });
 
   final String id;
   final String name;
-  final String description;
-  final Color previewColor;
   final List<Color> bgGradient;
   final Color primaryColor;
   final Color accentColor;
   final Color surfaceColor;
   final Color headingColor;
   final Color subtextColor;
-  final Color scaffoldBg;
   final Color glowColor;
+
+  final List<Color> tileBaseGradient;
+  final Color tileBaseHighlight;
+  final List<Color> tileBezelColors;
+  final Color tileInnerBezelColor;
+  final List<Color> tileFaceGradient;
+
+  Color get scaffoldBg => bgGradient.first;
 
   static const AppSkin jadeGarden = AppSkin(
     id: 'jade_garden',
     name: 'Jade Garden',
-    description: 'Classic emerald green mahjong aesthetic',
-    previewColor: Color(0xFF2D8B7A),
     bgGradient: [
       Color(0xFF1A5C5C),
       Color(0xFF0F3838),
@@ -44,192 +49,204 @@ class AppSkin {
     surfaceColor: Color(0xFF134545),
     headingColor: Color(0xFFF5F5F0),
     subtextColor: Color(0xFFA3C4BC),
-    scaffoldBg: Color(0xFF1A5C5C),
     glowColor: Color(0xFF2D8B7A),
+    tileBaseGradient: [
+      Color(0xFF2D8B7A),
+      Color(0xFF1E6B5E),
+      Color(0xFF134545),
+    ],
+    tileBaseHighlight: Color(0xFF80DFCD),
+    tileBezelColors: [
+      Color(0xE6A3C4BC),
+      Color(0x995C9C8E),
+      Color(0x662D8B7A),
+    ],
+    tileInnerBezelColor: Color(0x402D8B7A),
+    tileFaceGradient: [
+      Color(0xFFFFFFFF),
+      Color(0xFFFFFFFF),
+      Color(0xFFF5F9F8),
+      Color(0xFFE8F2EF),
+    ],
   );
 
-  static const AppSkin midnightIndigo = AppSkin(
-    id: 'midnight_indigo',
-    name: 'Midnight Indigo',
-    description: 'Deep celestial blue and cosmic tones',
-    previewColor: Color(0xFF3B82F6),
+  static const AppSkin pastelDusk = AppSkin(
+    id: 'pastel_dusk',
+    name: 'Pastel Dusk',
     bgGradient: [
-      Color(0xFF1E293B),
-      Color(0xFF0F172A),
-      Color(0xFF020617),
+      Color(0xFF2C243B),
+      Color(0xFF1F182C),
+      Color(0xFF150F1E),
     ],
-    primaryColor: Color(0xFF3B82F6),
-    accentColor: Color(0xFF2563EB),
-    surfaceColor: Color(0xFF1E293B),
-    headingColor: Color(0xFFF8FAFC),
-    subtextColor: Color(0xFF94A3B8),
-    scaffoldBg: Color(0xFF0F172A),
-    glowColor: Color(0xFF3B82F6),
+    primaryColor: Color(0xFFC4B5FD),
+    accentColor: Color(0xFFA78BFA),
+    surfaceColor: Color(0xFF382E4A),
+    headingColor: Color(0xFFF5F3FF),
+    subtextColor: Color(0xFFDDD6FE),
+    glowColor: Color(0xFFC4B5FD),
+    tileBaseGradient: [
+      Color(0xFF8B5CF6),
+      Color(0xFF6D28D9),
+      Color(0xFF4C1D95),
+    ],
+    tileBaseHighlight: Color(0xFFDDD6FE),
+    tileBezelColors: [
+      Color(0xE6C4B5FD),
+      Color(0x99A78BFA),
+      Color(0x668B5CF6),
+    ],
+    tileInnerBezelColor: Color(0x408B5CF6),
+    tileFaceGradient: [
+      Color(0xFFFFFFFF),
+      Color(0xFFFAF5FF),
+      Color(0xFFF3E8FF),
+      Color(0xFFE9D5FF),
+    ],
   );
 
-  static const AppSkin crimsonDynasty = AppSkin(
-    id: 'crimson_dynasty',
-    name: 'Crimson Dynasty',
-    description: 'Imperial red and golden accents',
-    previewColor: Color(0xFFDC2626),
+  static const AppSkin pastelSage = AppSkin(
+    id: 'pastel_sage',
+    name: 'Pastel Sage',
     bgGradient: [
-      Color(0xFF5A1414),
-      Color(0xFF3B0C0C),
-      Color(0xFF200505),
+      Color(0xFF1E2D27),
+      Color(0xFF14201B),
+      Color(0xFF0B1310),
     ],
-    primaryColor: Color(0xFFDC2626),
-    accentColor: Color(0xFFB91C1C),
-    surfaceColor: Color(0xFF4A1010),
-    headingColor: Color(0xFFFFF1F2),
-    subtextColor: Color(0xFFFECDD3),
-    scaffoldBg: Color(0xFF3B0C0C),
-    glowColor: Color(0xFFDC2626),
+    primaryColor: Color(0xFF86EFAC),
+    accentColor: Color(0xFF4ADE80),
+    surfaceColor: Color(0xFF273B33),
+    headingColor: Color(0xFFF0FDF4),
+    subtextColor: Color(0xFFBBF7D0),
+    glowColor: Color(0xFF86EFAC),
+    tileBaseGradient: [
+      Color(0xFF22C55E),
+      Color(0xFF15803D),
+      Color(0xFF14532D),
+    ],
+    tileBaseHighlight: Color(0xFFBBF7D0),
+    tileBezelColors: [
+      Color(0xE686EFAC),
+      Color(0x994ADE80),
+      Color(0x6622C55E),
+    ],
+    tileInnerBezelColor: Color(0x4022C55E),
+    tileFaceGradient: [
+      Color(0xFFFFFFFF),
+      Color(0xFFF0FDF4),
+      Color(0xFFDCFCE7),
+      Color(0xFFBBF7D0),
+    ],
   );
 
-  static const AppSkin sakuraBlossom = AppSkin(
-    id: 'sakura_blossom',
-    name: 'Sakura Blossom',
-    description: 'Delicate floral pink and lavender haze',
-    previewColor: Color(0xFFEC4899),
+  static const AppSkin pastelRose = AppSkin(
+    id: 'pastel_rose',
+    name: 'Pastel Rose',
     bgGradient: [
-      Color(0xFF4C1D3E),
-      Color(0xFF321229),
-      Color(0xFF1F0819),
+      Color(0xFF36202B),
+      Color(0xFF27151E),
+      Color(0xFF190C13),
     ],
-    primaryColor: Color(0xFFEC4899),
-    accentColor: Color(0xFFDB2777),
-    surfaceColor: Color(0xFF3B1630),
+    primaryColor: Color(0xFFF472B6),
+    accentColor: Color(0xFFE879F9),
+    surfaceColor: Color(0xFF472A39),
     headingColor: Color(0xFFFDF2F8),
     subtextColor: Color(0xFFFBCFE8),
-    scaffoldBg: Color(0xFF321229),
-    glowColor: Color(0xFFEC4899),
+    glowColor: Color(0xFFF472B6),
+    tileBaseGradient: [
+      Color(0xFFEC4899),
+      Color(0xFFBE185D),
+      Color(0xFF831843),
+    ],
+    tileBaseHighlight: Color(0xFFFBCFE8),
+    tileBezelColors: [
+      Color(0xE6F472B6),
+      Color(0x99E879F9),
+      Color(0x66EC4899),
+    ],
+    tileInnerBezelColor: Color(0x40EC4899),
+    tileFaceGradient: [
+      Color(0xFFFFFFFF),
+      Color(0xFFFDF2F8),
+      Color(0xFFFCE7F3),
+      Color(0xFFFBCFE8),
+    ],
   );
 
-  static const AppSkin obsidianCyber = AppSkin(
-    id: 'obsidian_cyber',
-    name: 'Obsidian Cyber',
-    description: 'Dark stealth carbon with neon teal highlights',
-    previewColor: Color(0xFF14B8A6),
+  static const AppSkin pastelTwilight = AppSkin(
+    id: 'pastel_twilight',
+    name: 'Pastel Twilight',
     bgGradient: [
-      Color(0xFF18181B),
-      Color(0xFF09090B),
-      Color(0xFF000000),
+      Color(0xFF1E293B),
+      Color(0xFF151E2D),
+      Color(0xFF0D131F),
     ],
-    primaryColor: Color(0xFF14B8A6),
-    accentColor: Color(0xFF0D9488),
-    surfaceColor: Color(0xFF27272A),
-    headingColor: Color(0xFFFAFAFA),
-    subtextColor: Color(0xFFA1A1AA),
-    scaffoldBg: Color(0xFF09090B),
-    glowColor: Color(0xFF14B8A6),
+    primaryColor: Color(0xFF38BDF8),
+    accentColor: Color(0xFF7DD3FC),
+    surfaceColor: Color(0xFF27354A),
+    headingColor: Color(0xFFF0F9FF),
+    subtextColor: Color(0xFFBAE6FD),
+    glowColor: Color(0xFF38BDF8),
+    tileBaseGradient: [
+      Color(0xFF0284C7),
+      Color(0xFF0369A1),
+      Color(0xFF075985),
+    ],
+    tileBaseHighlight: Color(0xFFBAE6FD),
+    tileBezelColors: [
+      Color(0xE638BDF8),
+      Color(0x997DD3FC),
+      Color(0x660284C7),
+    ],
+    tileInnerBezelColor: Color(0x400284C7),
+    tileFaceGradient: [
+      Color(0xFFFFFFFF),
+      Color(0xFFF0F9FF),
+      Color(0xFFE0F2FE),
+      Color(0xFFBAE6FD),
+    ],
   );
 
-  static const AppSkin amberSunset = AppSkin(
-    id: 'amber_sunset',
-    name: 'Amber Sunset',
-    description: 'Warm glowing terracotta and dusk amber',
-    previewColor: Color(0xFFF59E0B),
+  static const AppSkin pastelAmber = AppSkin(
+    id: 'pastel_amber',
+    name: 'Pastel Amber',
     bgGradient: [
-      Color(0xFF592D0D),
-      Color(0xFF3D1E08),
-      Color(0xFF261104),
+      Color(0xFF33251D),
+      Color(0xFF241913),
+      Color(0xFF170F0B),
     ],
-    primaryColor: Color(0xFFF59E0B),
-    accentColor: Color(0xFFD97706),
-    surfaceColor: Color(0xFF4D250A),
-    headingColor: Color(0xFFFFFBEB),
-    subtextColor: Color(0xFFFDE68A),
-    scaffoldBg: Color(0xFF3D1E08),
-    glowColor: Color(0xFFF59E0B),
-  );
-
-  static const AppSkin mysticAmethyst = AppSkin(
-    id: 'mystic_amethyst',
-    name: 'Mystic Amethyst',
-    description: 'Royal purple velvet and enchanting quartz',
-    previewColor: Color(0xFF9333EA),
-    bgGradient: [
-      Color(0xFF3B1A59),
-      Color(0xFF250F3B),
-      Color(0xFF140721),
+    primaryColor: Color(0xFFFDE047),
+    accentColor: Color(0xFFFACC15),
+    surfaceColor: Color(0xFF423126),
+    headingColor: Color(0xFFFEFCE8),
+    subtextColor: Color(0xFFFEF08A),
+    glowColor: Color(0xFFFDE047),
+    tileBaseGradient: [
+      Color(0xFFEAB308),
+      Color(0xFFA16207),
+      Color(0xFF713F12),
     ],
-    primaryColor: Color(0xFF9333EA),
-    accentColor: Color(0xFF7E22CE),
-    surfaceColor: Color(0xFF2F1447),
-    headingColor: Color(0xFFFAF5FF),
-    subtextColor: Color(0xFFE9D5FF),
-    scaffoldBg: Color(0xFF250F3B),
-    glowColor: Color(0xFF9333EA),
-  );
-
-  static const AppSkin deepOcean = AppSkin(
-    id: 'deep_ocean',
-    name: 'Deep Ocean',
-    description: 'Submerged oceanic abyss and turquoise glow',
-    previewColor: Color(0xFF06B6D4),
-    bgGradient: [
-      Color(0xFF0E4354),
-      Color(0xFF082B37),
-      Color(0xFF04171E),
+    tileBaseHighlight: Color(0xFFFEF08A),
+    tileBezelColors: [
+      Color(0xE6FDE047),
+      Color(0x99FACC15),
+      Color(0x66EAB308),
     ],
-    primaryColor: Color(0xFF06B6D4),
-    accentColor: Color(0xFF0891B2),
-    surfaceColor: Color(0xFF0B3644),
-    headingColor: Color(0xFFECFEFF),
-    subtextColor: Color(0xFFA5F3FC),
-    scaffoldBg: Color(0xFF082B37),
-    glowColor: Color(0xFF06B6D4),
-  );
-
-  static const AppSkin autumnForest = AppSkin(
-    id: 'autumn_forest',
-    name: 'Autumn Forest',
-    description: 'Earthy moss, fallen leaves, and rustic woods',
-    previewColor: Color(0xFF84CC16),
-    bgGradient: [
-      Color(0xFF2C3E14),
-      Color(0xFF1E2B0C),
-      Color(0xFF111906),
+    tileInnerBezelColor: Color(0x40EAB308),
+    tileFaceGradient: [
+      Color(0xFFFFFFFF),
+      Color(0xFFFEFCE8),
+      Color(0xFFFEF9C3),
+      Color(0xFFFEF08A),
     ],
-    primaryColor: Color(0xFF65A30D),
-    accentColor: Color(0xFF4D7C0F),
-    surfaceColor: Color(0xFF243310),
-    headingColor: Color(0xFFF7FEE7),
-    subtextColor: Color(0xFFD9F99D),
-    scaffoldBg: Color(0xFF1E2B0C),
-    glowColor: Color(0xFF84CC16),
-  );
-
-  static const AppSkin monoMinimal = AppSkin(
-    id: 'mono_minimal',
-    name: 'Mono Minimal',
-    description: 'Sleek neutral grayscale and titanium accents',
-    previewColor: Color(0xFFE2E8F0),
-    bgGradient: [
-      Color(0xFF2B2D33),
-      Color(0xFF1B1C20),
-      Color(0xFF111215),
-    ],
-    primaryColor: Color(0xFF64748B),
-    accentColor: Color(0xFF475569),
-    surfaceColor: Color(0xFF24262C),
-    headingColor: Color(0xFFF8FAFC),
-    subtextColor: Color(0xFFCBD5E1),
-    scaffoldBg: Color(0xFF1B1C20),
-    glowColor: Color(0xFF94A3B8),
   );
 
   static const List<AppSkin> allSkins = [
     jadeGarden,
-    midnightIndigo,
-    crimsonDynasty,
-    sakuraBlossom,
-    obsidianCyber,
-    amberSunset,
-    mysticAmethyst,
-    deepOcean,
-    autumnForest,
-    monoMinimal,
+    pastelDusk,
+    pastelSage,
+    pastelRose,
+    pastelTwilight,
+    pastelAmber,
   ];
 
   static AppSkin fromId(String? id) {

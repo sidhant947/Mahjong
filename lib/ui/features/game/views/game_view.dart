@@ -159,6 +159,7 @@ class _GameViewState extends ConsumerState<GameView> {
                 const SizedBox(height: 24),
                 TangibleButton(
                   text: 'NEXT LEVEL',
+                  isSecondary: true,
                   primaryColor: skin.primaryColor,
                   secondaryColor: skin.surfaceColor,
                   textColor: skin.headingColor,
@@ -297,113 +298,119 @@ class _GameViewState extends ConsumerState<GameView> {
             stops: const [0.0, 0.65, 1.0],
           ),
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Top Navigation Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _circleButton(
-                      icon: Icons.arrow_back_ios_new_rounded,
-                      iconSize: 18,
-                      iconColor: skin.headingColor,
-                      backgroundColor: skin.surfaceColor,
-                      onTap: () => Navigator.pop(context),
-                    ),
-                    Column(
-                      children: [
-                        Text(
-                          'LEVEL ${state.levelNumber}',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w900,
-                            color: skin.headingColor,
-                            letterSpacing: 1.0,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _buildMahjongBoard(state),
+            ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _circleButton(
+                        icon: Icons.arrow_back_ios_new_rounded,
+                        iconSize: 18,
+                        iconColor: skin.headingColor,
+                        backgroundColor: skin.surfaceColor,
+                        onTap: () => Navigator.pop(context),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'LEVEL ${state.levelNumber}',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              color: skin.headingColor,
+                              letterSpacing: 1.0,
+                            ),
                           ),
-                        ),
-                        Text(
-                          state.layout?.name.toUpperCase() ?? '',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: skin.subtextColor,
-                            letterSpacing: 1.0,
+                          Text(
+                            state.layout?.name.toUpperCase() ?? '',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: skin.subtextColor,
+                              letterSpacing: 1.0,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    _circleButton(
-                      icon: Icons.refresh_rounded,
-                      iconSize: 20,
-                      iconColor: skin.headingColor,
-                      backgroundColor: skin.surfaceColor,
-                      onTap: () => ref
-                          .read(gameViewModelProvider.notifier)
-                          .loadLevel(state.levelNumber),
-                    ),
-                  ],
+                        ],
+                      ),
+                      _circleButton(
+                        icon: Icons.refresh_rounded,
+                        iconSize: 20,
+                        iconColor: skin.headingColor,
+                        backgroundColor: skin.surfaceColor,
+                        onTap: () => ref
+                            .read(gameViewModelProvider.notifier)
+                            .loadLevel(state.levelNumber),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-
-              // Game Board Canvas
-              Expanded(
-                child: state.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _buildMahjongBoard(state),
-              ),
-
-              // Bottom Action Dock
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _circleButton(
-                      icon: Icons.undo_rounded,
-                      iconSize: 22,
-                      iconColor: skin.headingColor,
-                      backgroundColor: skin.surfaceColor,
-                      enabled: state.canUndo,
-                      onTap: () => ref.read(gameViewModelProvider.notifier).undo(),
-                    ),
-                    if (hintHelperEnabled)
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
                       _circleButton(
-                        icon: Icons.lightbulb_outline_rounded,
+                        icon: Icons.undo_rounded,
                         iconSize: 22,
                         iconColor: skin.headingColor,
                         backgroundColor: skin.surfaceColor,
-                        badgeColor: skin.primaryColor,
-                        badge: '${state.hintsRemaining}',
-                        enabled: state.hintsRemaining > 0,
-                        onTap: () => ref.read(gameViewModelProvider.notifier).hint(),
+                        enabled: state.canUndo,
+                        onTap: () => ref.read(gameViewModelProvider.notifier).undo(),
                       ),
-                    _circleButton(
-                      icon: Icons.center_focus_strong_rounded,
-                      iconSize: 20,
-                      iconColor: skin.headingColor,
-                      backgroundColor: skin.surfaceColor,
-                      onTap: () {
-                        if (state.layout != null) {
-                          _recenterBoard(
-                            BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width,
-                              maxHeight: MediaQuery.of(context).size.height * 0.75,
-                            ),
-                            state.layout!.width.toDouble(),
-                            state.layout!.height.toDouble(),
-                            state.layout!.depth,
-                          );
-                        }
-                      },
-                    ),
-                  ],
+                      if (hintHelperEnabled)
+                        _circleButton(
+                          icon: Icons.lightbulb_outline_rounded,
+                          iconSize: 22,
+                          iconColor: skin.headingColor,
+                          backgroundColor: skin.surfaceColor,
+                          badgeColor: skin.primaryColor,
+                          badge: '${state.hintsRemaining}',
+                          enabled: state.hintsRemaining > 0,
+                          onTap: () => ref.read(gameViewModelProvider.notifier).hint(),
+                        ),
+                      _circleButton(
+                        icon: Icons.center_focus_strong_rounded,
+                        iconSize: 20,
+                        iconColor: skin.headingColor,
+                        backgroundColor: skin.surfaceColor,
+                        onTap: () {
+                          if (state.layout != null) {
+                            _recenterBoard(
+                              BoxConstraints(
+                                maxWidth: MediaQuery.of(context).size.width,
+                                maxHeight: MediaQuery.of(context).size.height * 0.75,
+                              ),
+                              state.layout!.width.toDouble(),
+                              state.layout!.height.toDouble(),
+                              state.layout!.depth,
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -415,11 +422,15 @@ class _GameViewState extends ConsumerState<GameView> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final boardW = layout.width.toDouble();
-        final boardH = layout.height.toDouble();
+        final isPortrait = constraints.maxHeight > constraints.maxWidth;
+        final isDualBoardHorizontal = layout.name == 'Twin Peaks' || (state.activeTiles.any((t) => t.position.x >= 18) && layout.width >= 30);
+        final useVerticalDualBoard = isPortrait && isDualBoardHorizontal;
+
+        final boardW = useVerticalDualBoard ? 16.0 : layout.width.toDouble();
+        final boardH = useVerticalDualBoard ? 32.0 : layout.height.toDouble();
 
         final isMobile = constraints.maxWidth < 600;
-        final scaleFactor = isMobile ? 1.0 : 1.3;
+        final scaleFactor = useVerticalDualBoard ? 0.85 : (isMobile ? 1.0 : 1.3);
         final centerX = constraints.maxWidth / 2;
         final centerY = constraints.maxHeight / 2;
 
@@ -476,8 +487,15 @@ class _GameViewState extends ConsumerState<GameView> {
                       final isSelected = state.selectedTile?.id == tile.id;
                       final isHinted = state.hintPair.any((h) => h.id == tile.id);
 
-                      final posX = offsetX + (tile.position.x * (tileW / 2.0)) - (tile.position.z * levelOffsetX);
-                      final posY = offsetY + (tile.position.y * (tileH / 2.0)) - (tile.position.z * levelOffsetY);
+                      double tileX = tile.position.x.toDouble();
+                      double tileY = tile.position.y.toDouble();
+                      if (useVerticalDualBoard && tileX >= 16) {
+                        tileX -= 16;
+                        tileY += 12;
+                      }
+
+                      final posX = offsetX + (tileX * (tileW / 2.0)) - (tile.position.z * levelOffsetX);
+                      final posY = offsetY + (tileY * (tileH / 2.0)) - (tile.position.z * levelOffsetY);
 
                       return Positioned(
                         left: posX,

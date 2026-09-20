@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mahjong/ui/core/services/haptic_service.dart';
@@ -26,7 +25,7 @@ class _LevelSelectViewState extends ConsumerState<LevelSelectView> {
     final highestCompleted = state.progress?.highestLevelCompleted ?? 0;
     final currentLevel = state.progress?.currentLevel ?? 1;
 
-    final int totalLevelsToShow = math.max(100, (currentLevel + 50).clamp(100, 1000));
+    final int totalLevelsToShow = currentLevel + 10;
 
     return Scaffold(
       backgroundColor: skin.scaffoldBg,

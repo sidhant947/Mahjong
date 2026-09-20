@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mahjong/domain/models/app_skin.dart';
 import 'package:mahjong/domain/models/mahjong_tile.dart';
 import 'package:mahjong/ui/providers.dart';
 
@@ -10,6 +11,7 @@ class CustomMahjongTilePainter extends CustomPainter {
     required this.isFree,
     required this.isSelected,
     required this.isHinted,
+    this.skin = AppSkin.jadeGarden,
     this.useTraditional = false,
   });
 
@@ -19,6 +21,7 @@ class CustomMahjongTilePainter extends CustomPainter {
   final bool isSelected;
   final bool isHinted;
   final bool useTraditional;
+  final AppSkin skin;
 
   static const _fruits = ['🍎', '🍌', '🍇', '🍊', '🍓', '🍍', '🍑', '🍒', '🍉'];
   static const _animals = ['🦚', '🐼', '🐯', '🦁', '🦊', '🐸', '🐵', '🐨', '🐰'];
@@ -68,7 +71,7 @@ class CustomMahjongTilePainter extends CustomPainter {
 
     final shadowPaint = Paint()
       ..color = isSelected
-          ? const Color(0xFFEAB308).withValues(alpha: 0.6)
+          ? skin.primaryColor.withValues(alpha: 0.6)
           : (isFree ? const Color(0x33000000) : const Color(0x18000000));
     canvas.drawRRect(shadowRRect, shadowPaint);
 
@@ -83,16 +86,15 @@ class CustomMahjongTilePainter extends CustomPainter {
       bottomRight: Radius.circular(r * 1.1),
     );
     final basePaint = Paint()
-      ..shader = const LinearGradient(
+      ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Color(0xFFF59E0B), Color(0xFFD97706), Color(0xFFB45309)],
-        stops: [0.0, 0.6, 1.0],
+        colors: skin.tileBaseGradient,
       ).createShader(Rect.fromLTWH(0, 0, w, h));
     canvas.drawRRect(baseRect, basePaint);
 
     final baseHighlight = Paint()
-      ..color = const Color(0xB3FDE68A)
+      ..color = skin.tileBaseHighlight.withValues(alpha: 0.7)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
     canvas.drawRRect(baseRect, baseHighlight);
@@ -127,16 +129,10 @@ class CustomMahjongTilePainter extends CustomPainter {
     );
 
     final faceGradient = isFree
-        ? const LinearGradient(
+        ? LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFFFFFF),
-              Color(0xFFFFFFFF),
-              Color(0xFFFAFAFA),
-              Color(0xFFF3F4F6),
-            ],
-            stops: [0.0, 0.5, 0.85, 1.0],
+            colors: skin.tileFaceGradient,
           )
         : const LinearGradient(
             begin: Alignment.topCenter,
@@ -154,12 +150,8 @@ class CustomMahjongTilePainter extends CustomPainter {
         colors: isHinted
             ? [const Color(0xFF22C55E), const Color(0xFF16A34A)]
             : isSelected
-                ? [const Color(0xFFFACC15), const Color(0xFFEAB308)]
-                : [
-                    const Color(0xE6A5F3FC),
-                    const Color(0x9967E8F9),
-                    const Color(0x66CFFAFE),
-                  ],
+                ? [skin.primaryColor, skin.accentColor]
+                : skin.tileBezelColors,
       ).createShader(Rect.fromLTWH(0, 0, w, h))
       ..style = PaintingStyle.stroke
       ..strokeWidth = isHinted ? 3.0 : (isSelected ? 2.5 : 2.0);
@@ -176,7 +168,7 @@ class CustomMahjongTilePainter extends CustomPainter {
       bottomRight: Radius.circular(r * 0.8),
     );
     final innerBezelPaint = Paint()
-      ..color = const Color(0x4006B6D4)
+      ..color = skin.tileInnerBezelColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
     canvas.drawRRect(innerBezelRect, innerBezelPaint);
@@ -588,7 +580,8 @@ class CustomMahjongTilePainter extends CustomPainter {
         oldDelegate.isFree != isFree ||
         oldDelegate.isSelected != isSelected ||
         oldDelegate.isHinted != isHinted ||
-        oldDelegate.useTraditional != useTraditional;
+        oldDelegate.useTraditional != useTraditional ||
+        oldDelegate.skin.id != skin.id;
   }
 }
 
@@ -613,6 +606,7 @@ class MahjongTileAssetWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool traditional = useTraditional ?? ref.watch(traditionalTilesEnabledProvider);
+    final skin = ref.watch(currentSkinProvider);
     return RepaintBoundary(
       child: CustomPaint(
         painter: CustomMahjongTilePainter(
@@ -622,6 +616,7 @@ class MahjongTileAssetWidget extends ConsumerWidget {
           isSelected: isSelected,
           isHinted: isHinted,
           useTraditional: traditional,
+          skin: skin,
         ),
       ),
     );
