@@ -11,10 +11,7 @@ import 'package:mahjong/ui/features/game/view_models/game_view_model.dart';
 import 'package:mahjong/ui/providers.dart';
 
 class GameView extends ConsumerStatefulWidget {
-  const GameView({
-    super.key,
-    required this.levelNumber,
-  });
+  const GameView({super.key, required this.levelNumber});
 
   final int levelNumber;
 
@@ -23,7 +20,8 @@ class GameView extends ConsumerStatefulWidget {
 }
 
 class _GameViewState extends ConsumerState<GameView> {
-  final TransformationController _transformationController = TransformationController();
+  final TransformationController _transformationController =
+      TransformationController();
   bool _initialTransformSet = false;
 
   @override
@@ -40,7 +38,12 @@ class _GameViewState extends ConsumerState<GameView> {
     super.dispose();
   }
 
-  void _recenterBoard(BoxConstraints constraints, double boardW, double boardH, int depth) {
+  void _recenterBoard(
+    BoxConstraints constraints,
+    double boardW,
+    double boardH,
+    int depth,
+  ) {
     final isMobile = constraints.maxWidth < 600;
     final scaleFactor = isMobile ? 1.0 : 1.3;
     final centerX = constraints.maxWidth / 2;
@@ -82,10 +85,7 @@ class _GameViewState extends ConsumerState<GameView> {
               decoration: BoxDecoration(
                 color: backgroundColor ?? const Color(0xFF134545),
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white24,
-                  width: 1.0,
-                ),
+                border: Border.all(color: Colors.white24, width: 1.0),
               ),
               child: Icon(
                 icon,
@@ -98,7 +98,10 @@ class _GameViewState extends ConsumerState<GameView> {
                 top: -4,
                 right: -4,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: badgeColor ?? const Color(0xFF2D8B7A),
                     borderRadius: BorderRadius.circular(10),
@@ -191,7 +194,10 @@ class _GameViewState extends ConsumerState<GameView> {
                   textColor: skin.headingColor,
                   onPressed: () {
                     final Uri url = Uri.parse('https://ko-fi.com/sidhant947');
-                    launchUrl(url, mode: LaunchMode.externalApplication).catchError((_) => false);
+                    launchUrl(
+                      url,
+                      mode: LaunchMode.externalApplication,
+                    ).catchError((_) => false);
                   },
                 ),
               ],
@@ -239,10 +245,7 @@ class _GameViewState extends ConsumerState<GameView> {
                 Text(
                   'No matching pairs are currently free. Undo a move to continue!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: skin.subtextColor,
-                  ),
+                  style: TextStyle(fontSize: 14, color: skin.subtextColor),
                 ),
                 const SizedBox(height: 20),
                 TangibleButton(
@@ -310,7 +313,10 @@ class _GameViewState extends ConsumerState<GameView> {
               child: SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -363,7 +369,10 @@ class _GameViewState extends ConsumerState<GameView> {
               child: SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -373,7 +382,8 @@ class _GameViewState extends ConsumerState<GameView> {
                         iconColor: skin.headingColor,
                         backgroundColor: skin.surfaceColor,
                         enabled: state.canUndo,
-                        onTap: () => ref.read(gameViewModelProvider.notifier).undo(),
+                        onTap: () =>
+                            ref.read(gameViewModelProvider.notifier).undo(),
                       ),
                       if (hintHelperEnabled)
                         _circleButton(
@@ -384,7 +394,8 @@ class _GameViewState extends ConsumerState<GameView> {
                           badgeColor: skin.primaryColor,
                           badge: '${state.hintsRemaining}',
                           enabled: state.hintsRemaining > 0,
-                          onTap: () => ref.read(gameViewModelProvider.notifier).hint(),
+                          onTap: () =>
+                              ref.read(gameViewModelProvider.notifier).hint(),
                         ),
                       _circleButton(
                         icon: Icons.center_focus_strong_rounded,
@@ -396,7 +407,8 @@ class _GameViewState extends ConsumerState<GameView> {
                             _recenterBoard(
                               BoxConstraints(
                                 maxWidth: MediaQuery.of(context).size.width,
-                                maxHeight: MediaQuery.of(context).size.height * 0.75,
+                                maxHeight:
+                                    MediaQuery.of(context).size.height * 0.75,
                               ),
                               state.layout!.width.toDouble(),
                               state.layout!.height.toDouble(),
@@ -423,14 +435,16 @@ class _GameViewState extends ConsumerState<GameView> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isPortrait = constraints.maxHeight > constraints.maxWidth;
-        final isDualBoardHorizontal = layout.name == 'Twin Peaks' || (state.activeTiles.any((t) => t.position.x >= 18) && layout.width >= 30);
+        final isDualBoardHorizontal = layout.name == 'Twin Peaks';
         final useVerticalDualBoard = isPortrait && isDualBoardHorizontal;
 
         final boardW = useVerticalDualBoard ? 16.0 : layout.width.toDouble();
         final boardH = useVerticalDualBoard ? 32.0 : layout.height.toDouble();
 
         final isMobile = constraints.maxWidth < 600;
-        final scaleFactor = useVerticalDualBoard ? 0.85 : (isMobile ? 1.0 : 1.3);
+        final scaleFactor = useVerticalDualBoard
+            ? 0.85
+            : (isMobile ? 1.0 : 1.3);
         final centerX = constraints.maxWidth / 2;
         final centerY = constraints.maxHeight / 2;
 
@@ -469,8 +483,10 @@ class _GameViewState extends ConsumerState<GameView> {
               final levelOffsetX = scale * 0.45;
               final levelOffsetY = scale * 0.45;
 
-              final totalBoardWidth = (boardW / 2.0) * tileW + (layout.depth * levelOffsetX);
-              final totalBoardHeight = (boardH / 2.0) * tileH + (layout.depth * levelOffsetY);
+              final totalBoardWidth =
+                  (boardW / 2.0) * tileW + (layout.depth * levelOffsetX);
+              final totalBoardHeight =
+                  (boardH / 2.0) * tileH + (layout.depth * levelOffsetY);
 
               final offsetX = (constraints.maxWidth - totalBoardWidth) / 2;
               final offsetY = (constraints.maxHeight - totalBoardHeight) / 2;
@@ -483,9 +499,10 @@ class _GameViewState extends ConsumerState<GameView> {
                   height: constraints.maxHeight,
                   child: Stack(
                     children: activeTiles.map((tile) {
-
                       final isSelected = state.selectedTile?.id == tile.id;
-                      final isHinted = state.hintPair.any((h) => h.id == tile.id);
+                      final isHinted = state.hintPair.any(
+                        (h) => h.id == tile.id,
+                      );
 
                       double tileX = tile.position.x.toDouble();
                       double tileY = tile.position.y.toDouble();
@@ -494,8 +511,14 @@ class _GameViewState extends ConsumerState<GameView> {
                         tileY += 12;
                       }
 
-                      final posX = offsetX + (tileX * (tileW / 2.0)) - (tile.position.z * levelOffsetX);
-                      final posY = offsetY + (tileY * (tileH / 2.0)) - (tile.position.z * levelOffsetY);
+                      final posX =
+                          offsetX +
+                          (tileX * (tileW / 2.0)) -
+                          (tile.position.z * levelOffsetX);
+                      final posY =
+                          offsetY +
+                          (tileY * (tileH / 2.0)) -
+                          (tile.position.z * levelOffsetY);
 
                       return Positioned(
                         left: posX,
@@ -504,7 +527,9 @@ class _GameViewState extends ConsumerState<GameView> {
                         height: tileH,
                         child: GestureDetector(
                           onTap: () {
-                            ref.read(gameViewModelProvider.notifier).selectTile(tile);
+                            ref
+                                .read(gameViewModelProvider.notifier)
+                                .selectTile(tile);
                           },
                           child: _MahjongTileWidget(
                             key: ValueKey(tile.id),
@@ -519,7 +544,6 @@ class _GameViewState extends ConsumerState<GameView> {
                   ),
                 ),
               );
-
             },
           ),
         );
@@ -563,6 +587,3 @@ class _MahjongTileWidget extends StatelessWidget {
     );
   }
 }
-
-
-
