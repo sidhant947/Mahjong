@@ -37,6 +37,11 @@ final traditionalTilesEnabledProvider = Provider<bool>((ref) {
   return settingsRepo.traditionalTilesEnabled;
 });
 
+final dimLowerTilesEnabledProvider = Provider<bool>((ref) {
+  final settingsRepo = ref.watch(settingsRepositoryProvider);
+  return settingsRepo.dimLowerTilesEnabled;
+});
+
 final progressRepositoryProvider = ChangeNotifierProvider<ProgressRepository>((ref) {
   final hiveService = ref.watch(hiveServiceProvider);
   return ProgressRepository(hiveService: hiveService);

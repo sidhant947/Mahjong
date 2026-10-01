@@ -13,6 +13,7 @@ class CustomMahjongTilePainter extends CustomPainter {
     required this.isHinted,
     this.skin = AppSkin.jadeGarden,
     this.useTraditional = false,
+    this.dimLowerTiles = true,
   });
 
   final int typeIndex;
@@ -21,6 +22,7 @@ class CustomMahjongTilePainter extends CustomPainter {
   final bool isSelected;
   final bool isHinted;
   final bool useTraditional;
+  final bool dimLowerTiles;
   final AppSkin skin;
 
   static const _fruits = ['🍎', '🍌', '🍇', '🍊', '🍓', '🍍', '🍑', '🍒', '🍉'];
@@ -72,7 +74,7 @@ class CustomMahjongTilePainter extends CustomPainter {
     final shadowPaint = Paint()
       ..color = isSelected
           ? skin.primaryColor.withValues(alpha: 0.6)
-          : (isFree ? const Color(0x33000000) : const Color(0x18000000));
+          : (isFree || !dimLowerTiles ? const Color(0x33000000) : const Color(0x18000000));
     canvas.drawRRect(shadowRRect, shadowPaint);
 
     final baseRect = RRect.fromLTRBAndCorners(
@@ -128,7 +130,9 @@ class CustomMahjongTilePainter extends CustomPainter {
       bottomRight: Radius.circular(r),
     );
 
-    final faceGradient = isFree
+    final shouldDim = !isFree && dimLowerTiles;
+
+    final faceGradient = !shouldDim
         ? LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -212,7 +216,7 @@ class CustomMahjongTilePainter extends CustomPainter {
       }
     }
 
-    if (!isFree) {
+    if (shouldDim) {
       final lockedOverlayPaint = Paint()..color = const Color(0x47000000);
       canvas.drawRRect(faceRect, lockedOverlayPaint);
     }
@@ -581,6 +585,7 @@ class CustomMahjongTilePainter extends CustomPainter {
         oldDelegate.isSelected != isSelected ||
         oldDelegate.isHinted != isHinted ||
         oldDelegate.useTraditional != useTraditional ||
+        oldDelegate.dimLowerTiles != dimLowerTiles ||
         oldDelegate.skin.id != skin.id;
   }
 }
@@ -594,6 +599,7 @@ class MahjongTileAssetWidget extends ConsumerWidget {
     required this.isSelected,
     required this.isHinted,
     this.useTraditional,
+    this.dimLowerTiles,
   });
 
   final int typeIndex;
@@ -602,10 +608,12 @@ class MahjongTileAssetWidget extends ConsumerWidget {
   final bool isSelected;
   final bool isHinted;
   final bool? useTraditional;
+  final bool? dimLowerTiles;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool traditional = useTraditional ?? ref.watch(traditionalTilesEnabledProvider);
+    final bool shouldDimLower = dimLowerTiles ?? ref.watch(dimLowerTilesEnabledProvider);
     final skin = ref.watch(currentSkinProvider);
     return RepaintBoundary(
       child: CustomPaint(
@@ -616,6 +624,7 @@ class MahjongTileAssetWidget extends ConsumerWidget {
           isSelected: isSelected,
           isHinted: isHinted,
           useTraditional: traditional,
+          dimLowerTiles: shouldDimLower,
           skin: skin,
         ),
       ),

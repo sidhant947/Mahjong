@@ -11,11 +11,13 @@ class SettingsRepository extends ChangeNotifier {
   bool _hintHelperEnabled = true;
   bool _hapticsEnabled = true;
   bool _traditionalTilesEnabled = false;
+  bool _dimLowerTilesEnabled = true;
 
   AppSkin get currentSkin => _currentSkin;
   bool get hintHelperEnabled => _hintHelperEnabled;
   bool get hapticsEnabled => _hapticsEnabled;
   bool get traditionalTilesEnabled => _traditionalTilesEnabled;
+  bool get dimLowerTilesEnabled => _dimLowerTilesEnabled;
 
   Future<void> init() async {
     final skinId = await hiveService.getSelectedSkinId();
@@ -23,6 +25,7 @@ class SettingsRepository extends ChangeNotifier {
     _hintHelperEnabled = await hiveService.getHintHelperEnabled();
     _hapticsEnabled = await hiveService.getHapticsEnabled();
     _traditionalTilesEnabled = await hiveService.getTraditionalTilesEnabled();
+    _dimLowerTilesEnabled = await hiveService.getDimLowerTilesEnabled();
     HapticService.isHapticsEnabled = _hapticsEnabled;
     notifyListeners();
   }
@@ -50,5 +53,11 @@ class SettingsRepository extends ChangeNotifier {
     _traditionalTilesEnabled = enabled;
     notifyListeners();
     await hiveService.saveTraditionalTilesEnabled(enabled);
+  }
+
+  Future<void> setDimLowerTilesEnabled(bool enabled) async {
+    _dimLowerTilesEnabled = enabled;
+    notifyListeners();
+    await hiveService.saveDimLowerTilesEnabled(enabled);
   }
 }

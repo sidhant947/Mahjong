@@ -62,5 +62,15 @@ class HiveService {
     final settingsBox = await Hive.openBox('app_settings');
     await settingsBox.put('traditional_tiles_enabled', enabled);
   }
+
+  Future<bool> getDimLowerTilesEnabled() async {
+    final settingsBox = await Hive.openBox('app_settings');
+    return settingsBox.get('dim_lower_tiles_enabled', defaultValue: true) as bool;
+  }
+
+  Future<void> saveDimLowerTilesEnabled(bool enabled) async {
+    final settingsBox = await Hive.openBox('app_settings');
+    await settingsBox.put('dim_lower_tiles_enabled', enabled);
+  }
 }
 
