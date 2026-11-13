@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:mahjong/domain/models/app_skin.dart';
 
 class _NoTransitionBuilder extends PageTransitionsBuilder {

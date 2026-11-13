@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -552,7 +552,7 @@ class _GameViewState extends ConsumerState<GameView> {
   }
 }
 
-class _MahjongTileWidget extends StatelessWidget {
+class _MahjongTileWidget extends StatefulWidget {
   const _MahjongTileWidget({
     super.key,
     required this.tile,
@@ -567,23 +567,81 @@ class _MahjongTileWidget extends StatelessWidget {
   final double depthOffset;
 
   @override
+  State<_MahjongTileWidget> createState() => _MahjongTileWidgetState();
+}
+
+class _MahjongTileWidgetState extends State<_MahjongTileWidget>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _hintController;
+
+  @override
+  void initState() {
+    super.initState();
+    _hintController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    if (widget.isHinted) {
+      _hintController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _MahjongTileWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isHinted != oldWidget.isHinted) {
+      if (widget.isHinted) {
+        _hintController.repeat(reverse: true);
+      } else {
+        _hintController.stop();
+        _hintController.reset();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _hintController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AnimatedScale(
-      scale: isSelected ? 1.08 : 1.0,
-      duration: const Duration(milliseconds: 160),
-      curve: Curves.easeOutBack,
-      child: AnimatedSlide(
-        offset: isSelected ? const Offset(0, -0.06) : Offset.zero,
-        duration: const Duration(milliseconds: 160),
-        curve: Curves.easeOutCubic,
-        child: MahjongTileAssetWidget(
-          typeIndex: tile.tile.type.index,
-          value: tile.tile.value,
-          isFree: tile.isFree,
-          isSelected: isSelected,
-          isHinted: isHinted,
-        ),
-      ),
+    return AnimatedBuilder(
+      animation: _hintController,
+      builder: (context, child) {
+        final hintProgress = widget.isHinted ? _hintController.value : 0.0;
+        final bobY = widget.isHinted && !widget.isSelected
+            ? -3.0 * Curves.easeInOut.transform(hintProgress)
+            : 0.0;
+        final elevY = widget.isSelected ? -8.0 : 0.0;
+        final targetY = elevY + bobY;
+        final scale = widget.isSelected ? 1.045 : 1.0;
+
+        return TweenAnimationBuilder<double>(
+          tween: Tween<double>(end: targetY),
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOutCubic,
+          builder: (context, currentY, child) {
+            return AnimatedScale(
+              scale: scale,
+              duration: const Duration(milliseconds: 160),
+              curve: Curves.easeOutBack,
+              child: Transform.translate(
+                offset: Offset(0, currentY),
+                child: MahjongTileAssetWidget(
+                  typeIndex: widget.tile.tile.type.index,
+                  value: widget.tile.tile.value,
+                  isFree: widget.tile.isFree,
+                  isSelected: widget.isSelected,
+                  isHinted: widget.isHinted,
+                  hintProgress: hintProgress,
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
