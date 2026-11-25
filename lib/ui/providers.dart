@@ -32,6 +32,11 @@ final hapticsEnabledProvider = Provider<bool>((ref) {
   return settingsRepo.hapticsEnabled;
 });
 
+final soundEnabledProvider = Provider<bool>((ref) {
+  final settingsRepo = ref.watch(settingsRepositoryProvider);
+  return settingsRepo.soundEnabled;
+});
+
 final traditionalTilesEnabledProvider = Provider<bool>((ref) {
   final settingsRepo = ref.watch(settingsRepositoryProvider);
   return settingsRepo.traditionalTilesEnabled;

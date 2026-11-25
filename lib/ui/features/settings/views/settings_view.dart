@@ -371,6 +371,72 @@ class SettingsView extends ConsumerWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
+                                  ref.watch(soundEnabledProvider)
+                                      ? Icons.volume_up_rounded
+                                      : Icons.volume_off_rounded,
+                                  color: currentSkin.headingColor,
+                                  size: 22,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Sound Effects',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: currentSkin.headingColor,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Play audio on tile matches and level clear',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: currentSkin.subtextColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Switch(
+                                value: ref.watch(soundEnabledProvider),
+                                activeThumbColor: currentSkin.primaryColor,
+                                activeTrackColor: currentSkin.primaryColor.withValues(alpha: 0.4),
+                                inactiveThumbColor: currentSkin.subtextColor,
+                                inactiveTrackColor: Colors.white10,
+                                onChanged: (bool value) {
+                                  settingsRepo.setSoundEnabled(value);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: currentSkin.surfaceColor,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: currentSkin.accentColor.withValues(alpha: 0.3),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: currentSkin.primaryColor.withValues(alpha: 0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
                                   Icons.grid_view_rounded,
                                   color: currentSkin.headingColor,
                                   size: 22,

@@ -6,6 +6,7 @@ import 'package:mahjong/data/repositories/progress_repository.dart';
 import 'package:mahjong/domain/models/mahjong_tile.dart';
 import 'package:mahjong/domain/models/mahjong_layout.dart';
 import 'package:mahjong/domain/use_cases/mahjong_generator.dart';
+import 'package:mahjong/ui/core/services/audio_service.dart';
 import 'package:mahjong/ui/core/services/haptic_service.dart';
 
 @immutable
@@ -52,6 +53,13 @@ class GameViewModelState {
   final int hintsRemaining;
   final bool isDeadlocked;
   final String? error;
+
+  bool get canSkip =>
+      !isLoading &&
+      !isComplete &&
+      !isDeadlocked &&
+      activeTiles.isNotEmpty &&
+      activeTiles.every((t) => t.isFree);
 
   GameViewModelState copyWith({
     int? levelNumber,
@@ -252,9 +260,12 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
 
     if (isDone) {
       _timer?.cancel();
+      AudioService.playLevelClear();
       progressRepository
           .completeLevel(state.levelNumber)
           .catchError((e) => debugPrint('Error saving progress: $e'));
+    } else {
+      AudioService.playTileMatch();
     }
   }
 
@@ -312,6 +323,36 @@ class GameViewModel extends StateNotifier<GameViewModelState> {
     );
 
     HapticService.heavyImpact();
+  }
+
+  void skip() {
+    if (!state.canSkip) return;
+
+    _undoStack.add(MahjongSnapshot(
+      tiles: List.from(state.activeTiles),
+      moveCount: state.moveCount,
+    ));
+
+    final pairsCount = state.activeTiles.length ~/ 2;
+
+    _timer?.cancel();
+    state = state.copyWith(
+      activeTiles: const [],
+      clearSelectedTile: true,
+      clearHintPair: true,
+      moveCount: state.moveCount + pairsCount,
+      canUndo: true,
+      isComplete: true,
+      availableMoves: 0,
+      isDeadlocked: false,
+    );
+
+    HapticService.heavyImpact();
+    AudioService.playLevelClear();
+
+    progressRepository
+        .completeLevel(state.levelNumber)
+        .catchError((e) => debugPrint('Error saving progress: $e'));
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:mahjong/data/services/hive_service.dart';
 import 'package:mahjong/domain/models/app_skin.dart';
+import 'package:mahjong/ui/core/services/audio_service.dart';
 import 'package:mahjong/ui/core/services/haptic_service.dart';
 
 class SettingsRepository extends ChangeNotifier {
@@ -10,12 +11,14 @@ class SettingsRepository extends ChangeNotifier {
   AppSkin _currentSkin = AppSkin.jadeGarden;
   bool _hintHelperEnabled = true;
   bool _hapticsEnabled = true;
+  bool _soundEnabled = true;
   bool _traditionalTilesEnabled = false;
   bool _dimLowerTilesEnabled = true;
 
   AppSkin get currentSkin => _currentSkin;
   bool get hintHelperEnabled => _hintHelperEnabled;
   bool get hapticsEnabled => _hapticsEnabled;
+  bool get soundEnabled => _soundEnabled;
   bool get traditionalTilesEnabled => _traditionalTilesEnabled;
   bool get dimLowerTilesEnabled => _dimLowerTilesEnabled;
 
@@ -24,9 +27,11 @@ class SettingsRepository extends ChangeNotifier {
     _currentSkin = AppSkin.fromId(skinId);
     _hintHelperEnabled = await hiveService.getHintHelperEnabled();
     _hapticsEnabled = await hiveService.getHapticsEnabled();
+    _soundEnabled = await hiveService.getSoundEnabled();
     _traditionalTilesEnabled = await hiveService.getTraditionalTilesEnabled();
     _dimLowerTilesEnabled = await hiveService.getDimLowerTilesEnabled();
     HapticService.isHapticsEnabled = _hapticsEnabled;
+    AudioService.isAudioEnabled = _soundEnabled;
     notifyListeners();
   }
 
@@ -47,6 +52,16 @@ class SettingsRepository extends ChangeNotifier {
     HapticService.isHapticsEnabled = enabled;
     notifyListeners();
     await hiveService.saveHapticsEnabled(enabled);
+  }
+
+  Future<void> setSoundEnabled(bool enabled) async {
+    _soundEnabled = enabled;
+    AudioService.isAudioEnabled = enabled;
+    if (!enabled) {
+      AudioService.dispose();
+    }
+    notifyListeners();
+    await hiveService.saveSoundEnabled(enabled);
   }
 
   Future<void> setTraditionalTilesEnabled(bool enabled) async {

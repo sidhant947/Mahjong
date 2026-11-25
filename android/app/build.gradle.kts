@@ -13,8 +13,6 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-val baseVersionCode = 7
-
 android {
     namespace = "com.sidhant.mahjong"
     compileSdk = flutter.compileSdkVersion
@@ -38,8 +36,8 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = baseVersionCode
-        versionName = "1.0.6"
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     signingConfigs {
@@ -67,7 +65,7 @@ android {
             val abiName = output.getFilter(com.android.build.OutputFile.ABI)
             val abiCode = abiCodes[abiName]
             if (abiCode != null) {
-                output.versionCodeOverride = baseVersionCode * 10 + abiCode
+                output.versionCodeOverride = (variant.versionCode) * 10 + abiCode
             }
         }
     }
